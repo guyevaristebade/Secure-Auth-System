@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { RegisterInput } from '../models/auth.model';
 import { loginService, registerService } from '../services/auth.service';
-import { loginSchema } from '../schemas';
+import { loginSchema, registerSchema } from '../schemas';
 
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await registerService(req.body as RegisterInput);
+        const valideData = registerSchema.parse(req.body);
+        const result = await registerService(valideData);
         res.status(201).json(result);
     } catch (error) {
         next(error);

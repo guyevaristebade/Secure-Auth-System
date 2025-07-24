@@ -1,10 +1,9 @@
 import bcrypt from 'bcryptjs';
-// import jwt from 'jsonwebtoken';
 import prisma from '../config/db';
 import { ConflitError } from '../errors/conflit.error';
-import { RegisterInput, userPayload } from '../models/auth.model';
+import { userPayload } from '../models/auth.model';
 import { hashPassword } from '../helpers/hashPassword';
-import { loginInput } from '../schemas';
+import { loginInput, RegisterInput } from '../schemas';
 import { UnauthorizedError } from '../errors/unauthorized.error';
 import { generateAccessToken, generateRefreshToken, storeRefreshToken } from '../helpers/generateTokens';
 
