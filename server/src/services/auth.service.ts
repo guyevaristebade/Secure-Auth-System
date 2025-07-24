@@ -1,9 +1,12 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
 import prisma from '../config/db';
 import { ConflitError } from '../errors/conflit.error';
-import { RegisterInput } from '../models/auth.model';
+import { RegisterInput, userPayload } from '../models/auth.model';
 import { hashPassword } from '../utils/hashPassword';
+import { loginInput } from '../schemas';
+import { UnauthorizedError } from '../errors/unauthorized.error';
+import { generateAccessToken, generateRefreshToken, storeRefreshToken } from '../utils/generateTokens';
 
 export const registerService = async (data: RegisterInput) => {
     const { email, name, password } = data;
@@ -28,4 +31,45 @@ export const registerService = async (data: RegisterInput) => {
     return userWithoutPassword;
 };
 
-// export const loginService = async () => {};
+export const loginService = async (data: loginInput) => {
+    const { email, password } = data;
+
+    // est-ce qu'un utilisateur existe ?
+    const existingUser = await prisma.user.findUnique({
+        where: { email },
+    });
+
+    if (!existingUser) throw new UnauthorizedError('Email ou mot de passe incorrect');
+
+    // comparons les mdp
+    const passwordCompare = await bcrypt.compare(password, existingUser.password);
+
+    if (!passwordCompare) throw new UnauthorizedError('Email ou mot de passe incorrect');
+
+    // extraction de certaines informations sur l'utilisateur
+    const userPayload: userPayload = {
+        id: existingUser.id,
+        email: existingUser.email,
+        name: existingUser.name,
+        role: existingUser.role,
+    };
+
+    // génération des tokens
+    const accessToken = generateAccessToken(userPayload);
+    const refreshToken = generateRefreshToken(userPayload);
+
+    // mise à jour de la date de login
+    await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { loginAt: new Date() },
+    });
+
+    // stockage du refreshToken en base
+    await storeRefreshToken(existingUser.id, refreshToken);
+
+    return {
+        accessToken,
+        refreshToken,
+        user: userPayload,
+    };
+};
