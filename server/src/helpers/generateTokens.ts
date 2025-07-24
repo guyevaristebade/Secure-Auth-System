@@ -9,8 +9,11 @@ export const generateAccessToken = (user: userPayload) => {
     return accessToken;
 };
 
-export const generateRefreshToken = (user: userPayload) => {
-    const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '7d' });
+/*
+    Le refreshToken ne doit pas contenir des information comme le role , les permissions etc.. pour des raisons de sécurité
+*/
+export const generateRefreshToken = (userId: string) => {
+    const refreshToken = jwt.sign({ sub: userId }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '7d' });
     return refreshToken;
 };
 

@@ -3,10 +3,10 @@ import bcrypt from 'bcryptjs';
 import prisma from '../config/db';
 import { ConflitError } from '../errors/conflit.error';
 import { RegisterInput, userPayload } from '../models/auth.model';
-import { hashPassword } from '../utils/hashPassword';
+import { hashPassword } from '../helpers/hashPassword';
 import { loginInput } from '../schemas';
 import { UnauthorizedError } from '../errors/unauthorized.error';
-import { generateAccessToken, generateRefreshToken, storeRefreshToken } from '../utils/generateTokens';
+import { generateAccessToken, generateRefreshToken, storeRefreshToken } from '../helpers/generateTokens';
 
 export const registerService = async (data: RegisterInput) => {
     const { email, name, password } = data;
@@ -56,7 +56,7 @@ export const loginService = async (data: loginInput) => {
 
     // génération des tokens
     const accessToken = generateAccessToken(userPayload);
-    const refreshToken = generateRefreshToken(userPayload);
+    const refreshToken = generateRefreshToken(existingUser.id);
 
     // mise à jour de la date de login
     await prisma.user.update({
