@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginService, registerService } from '../services/auth.service';
+import { loginService, refreshService, registerService } from '../services/auth.service';
 import { loginSchema, registerSchema } from '../schemas';
 
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,6 +28,19 @@ export const loginController = async (req: Request, res: Response, next: NextFun
         });
 
         res.status(201).json({ accessToken, user });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const refreshController = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = (req as any).userId;
+    const refresh_token = req.cookies.refresh_token;
+
+    try {
+        const { newAccessToken, newRefreshToken } = await refreshService(userId, refresh_token);
+
+        res.status(201).json({ data: { accessToken: newAccessToken }, message: 'Token rafraîchit avec succès' });
     } catch (error) {
         next(error);
     }

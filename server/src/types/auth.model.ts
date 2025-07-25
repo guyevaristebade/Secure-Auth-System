@@ -4,3 +4,7 @@ export interface userPayload {
     name: string;
     role: string;
 }
+
+export interface DecodedToken {
+    userId: string;
+}

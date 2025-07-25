@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '../config/db.config';
-import { userPayload } from '../models/auth.model';
+import { userPayload } from '../types/auth.model';
 
-export const generateAccessToken = (user: userPayload) => {
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '15m' });
+export const generateAccessToken = (userId: string) => {
+    const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '15m' });
 
     return accessToken;
 };
@@ -13,7 +13,7 @@ export const generateAccessToken = (user: userPayload) => {
     Le refreshToken ne doit pas contenir des information comme le role , les permissions etc.. pour des raisons de sécurité
 */
 export const generateRefreshToken = (userId: string) => {
-    const refreshToken = jwt.sign({ sub: userId }, process.env.REFRESH_TOKEN_SECRET as string, {
+    const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET as string, {
         expiresIn: '1d',
     });
     return refreshToken;

@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/db.config';
 import { ConflitError } from '../errors/conflit.error';
-import { userPayload } from '../models/auth.model';
+import { userPayload } from '../types/auth.model';
 import { hashPassword } from '../helpers/hashPassword';
 import { loginInput, RegisterInput } from '../schemas';
 import { UnauthorizedError } from '../errors/unauthorized.error';
@@ -54,7 +54,7 @@ export const loginService = async (data: loginInput) => {
     };
 
     // génération des tokens
-    const accessToken = generateAccessToken(userPayload);
+    const accessToken = generateAccessToken(existingUser.id);
     const refreshToken = generateRefreshToken(existingUser.id);
 
     // mise à jour de la date de login
@@ -71,4 +71,25 @@ export const loginService = async (data: loginInput) => {
         refreshToken,
         user: userPayload,
     };
+};
+
+export const refreshService = async (userId: string, refreshToken: string) => {
+    // on vérifie que le user existe et que la valeur de refreshToken en base n'est pas null
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+    if (!user || !user.refreshToken) throw new UnauthorizedError('Accès refusé');
+
+    // on vérifie que le token en base et celui du cookie sont identique
+    const compareTokens = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!compareTokens) throw new UnauthorizedError('Token invalide');
+
+    // on génère un newAccessToken et newRefreshToken
+    const newAccessToken = generateAccessToken(userId);
+    const newRefreshToken = generateRefreshToken(userId);
+
+    // on stock le nouveau refreshToken en base pour la rotation
+    await storeRefreshToken(userId, newRefreshToken);
+
+    return { newAccessToken, newRefreshToken };
 };
