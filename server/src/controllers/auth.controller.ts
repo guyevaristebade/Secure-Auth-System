@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginService, refreshService, registerService } from '../services/auth.service';
+import { loginService, logoutService, refreshService, registerService } from '../services/auth.service';
 import { loginSchema, registerSchema } from '../schemas';
+import { DecodedToken } from '../types/auth.model';
 
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const valideData = registerSchema.parse(req.body);
+        const valideData = registerSchema.parse(req.body); // je vais délégué la vérification à un middlewares de validation d'erreur Zod qui va prendre le schema en parametre
         const result = await registerService(valideData);
         res.status(201).json(result);
     } catch (error) {
@@ -15,7 +16,7 @@ export const registerController = async (req: Request, res: Response, next: Next
 export const loginController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // on parse l'entrée utilisateur avec zod
-        const valideData = loginSchema.parse(req.body);
+        const valideData = loginSchema.parse(req.body); // je vais délégué la vérification à un middlewares de validation d'erreur Zod qui va prendre le schema en parametre
 
         const { refreshToken, user, accessToken } = await loginService(valideData);
 
@@ -39,8 +40,20 @@ export const refreshController = async (req: Request, res: Response, next: NextF
 
     try {
         const { newAccessToken, newRefreshToken } = await refreshService(userId, refresh_token);
-
+        //console.log((req as any).userId);
         res.status(201).json({ data: { accessToken: newAccessToken }, message: 'Token rafraîchit avec succès' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = (req as any).userId;
+        await logoutService(userId);
+        res.clearCookie('refresh_token');
+
+        res.status(201).json({ message: 'Deconnexion réussi' });
     } catch (error) {
         next(error);
     }

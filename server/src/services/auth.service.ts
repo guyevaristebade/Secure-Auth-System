@@ -93,3 +93,12 @@ export const refreshService = async (userId: string, refreshToken: string) => {
 
     return { newAccessToken, newRefreshToken };
 };
+
+export const logoutService = async (userId: string) => {
+    if (!userId) throw new UnauthorizedError('Utilisateur invalide');
+
+    const user = await prisma.user.update({
+        where: { id: userId },
+        data: { refreshToken: null },
+    });
+};
