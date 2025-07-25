@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../config/db';
+import prisma from '../config/db.config';
 import { ConflitError } from '../errors/conflit.error';
 import { userPayload } from '../models/auth.model';
 import { hashPassword } from '../helpers/hashPassword';
