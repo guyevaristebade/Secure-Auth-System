@@ -1,13 +1,15 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { DecodedToken } from '../types/auth.model';
-import { UnauthorizedError } from '../errors/unauthorized.error';
+import { DecodedToken } from '../types';
+import { UnauthorizedError } from '../errors';
 import { ZodObject, ZodError } from 'zod';
-const authMiddlewares = {
+
+export const authMiddlewares = {
     authenticatedUser: (req: Request, res: Response, next: NextFunction) => {
         const token = req.headers.authorization?.split(' ')[1];
 
         // on vérifie le token
+
         if (!token) throw new UnauthorizedError('Accès refusé');
 
         try {
@@ -43,19 +45,24 @@ const authMiddlewares = {
         }
     },
 
-    validationError: (req: Request, res: Response, next: NextFunction, schema: ZodObject) => {
-        try {
-            schema.parse(req.body);
-            next();
-        } catch (error) {
-            if (error instanceof ZodError) {
-                const message = error.issues[0].message;
-                res.status(400).json({ error: message });
+    //
+    validationError: (schema: ZodObject) => {
+        return (req: Request, res: Response, next: NextFunction) => {
+            try {
+                schema.parse(req.body);
+                next();
+            } catch (error) {
+                if (error instanceof ZodError) {
+                    const message = error.issues[0].message;
+                    res.status(400).json({
+                        ok: false,
+                        status: 400,
+                        message,
+                    });
+                }
+                // au suivant si ce n'est pas le cas
+                next(error);
             }
-            // au suivant si ce n'est pas le cas
-            next(error);
-        }
+        };
     },
 };
-
-export default authMiddlewares;

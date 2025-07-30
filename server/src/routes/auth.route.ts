@@ -1,17 +1,13 @@
 import { Router } from 'express';
-import {
-    loginController,
-    logoutController,
-    refreshController,
-    registerController,
-} from '../controllers/auth.controller';
-import authMiddlewares from '../middlewares/auth.middleware';
+import { authMiddlewares } from '../middlewares';
+import { loginSchema, registerSchema } from '../schemas';
+import { loginController, logoutController, refreshController, registerController } from '../controllers';
 
 export const authRouter = Router();
 
-authRouter.post('/register', registerController);
+authRouter.post('/register', authMiddlewares.validationError(registerSchema), registerController);
 
-authRouter.post('/login', loginController);
+authRouter.post('/login', authMiddlewares.validationError(loginSchema), loginController);
 
 authRouter.get('/refresh-token', authMiddlewares.refreshTokenValidation, refreshController);
 

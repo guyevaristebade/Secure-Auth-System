@@ -1,13 +1,24 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../config/db.config';
-import { ConflitError } from '../errors/conflit.error';
-import { userPayload } from '../types/auth.model';
-import { hashPassword } from '../helpers/hashPassword';
+import { prisma } from '@config/index';
+import { ConflitError, UnauthorizedError } from '../errors';
 import { loginInput, RegisterInput } from '../schemas';
-import { UnauthorizedError } from '../errors/unauthorized.error';
-import { generateAccessToken, generateRefreshToken, storeRefreshToken } from '../helpers/generateTokens';
+import { ApiResponse, userWithoutRole, UserPayloadWithTokens, ITokens, UserPayload } from '../types';
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    storeRefreshToken,
+    comparePassword,
+    hashPassword,
+    updateLoginAt,
+} from '../helpers';
 
 export const registerService = async (data: RegisterInput) => {
+    const apiResponse: ApiResponse<userWithoutRole> = {
+        ok: true,
+        status: 201,
+        data: null,
+    };
+
     const { email, name, password } = data;
     // existing user
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -15,7 +26,7 @@ export const registerService = async (data: RegisterInput) => {
     if (existingUser) throw new ConflitError('Un utilisateur existe déjà !');
 
     //hash password
-    const passwordHash = hashPassword(password);
+    const passwordHash = await hashPassword(password);
 
     const user = await prisma.user.create({
         data: {
@@ -25,12 +36,21 @@ export const registerService = async (data: RegisterInput) => {
         },
     });
 
-    const { password: _, ...userWithoutPassword } = user;
+    apiResponse.data = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+    };
 
-    return userWithoutPassword;
+    return apiResponse;
 };
 
 export const loginService = async (data: loginInput) => {
+    const apiResponse: ApiResponse<UserPayloadWithTokens> = {
+        ok: true,
+        status: 201,
+        data: null,
+    };
     const { email, password } = data;
 
     // est-ce qu'un utilisateur existe ?
@@ -41,12 +61,12 @@ export const loginService = async (data: loginInput) => {
     if (!existingUser) throw new UnauthorizedError('Email ou mot de passe incorrect');
 
     // comparons les mdp
-    const passwordCompare = await bcrypt.compare(password, existingUser.password);
+    const isPasswordValid = await comparePassword(password, existingUser.password);
 
-    if (!passwordCompare) throw new UnauthorizedError('Email ou mot de passe incorrect');
+    if (!isPasswordValid) throw new UnauthorizedError('Email ou mot de passe incorrect');
 
     // extraction de certaines informations sur l'utilisateur
-    const userPayload: userPayload = {
+    const userPayload: UserPayload = {
         id: existingUser.id,
         email: existingUser.email,
         name: existingUser.name,
@@ -58,22 +78,29 @@ export const loginService = async (data: loginInput) => {
     const refreshToken = generateRefreshToken(existingUser.id);
 
     // mise à jour de la date de login
-    await prisma.user.update({
-        where: { id: existingUser.id },
-        data: { loginAt: new Date() },
-    });
+    await updateLoginAt(existingUser.id);
 
     // stockage du refreshToken en base
     await storeRefreshToken(existingUser.id, refreshToken);
 
-    return {
+    apiResponse.data = {
+        user: userPayload,
         accessToken,
         refreshToken,
-        user: userPayload,
     };
+
+    return apiResponse;
 };
 
 export const refreshService = async (userId: string, refreshToken: string) => {
+    const apiResponse: ApiResponse<ITokens> = {
+        ok: true,
+        status: 201,
+        data: null,
+    };
+
+    if (!userId) throw new UnauthorizedError('Utilisateur invalide');
+
     // on vérifie que le user existe et que la valeur de refreshToken en base n'est pas null
     const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -81,7 +108,7 @@ export const refreshService = async (userId: string, refreshToken: string) => {
     if (!user || !user.refreshToken) throw new UnauthorizedError('Accès refusé');
 
     // on vérifie que le token en base et celui du cookie sont identique
-    const compareTokens = await bcrypt.compare(refreshToken, user.refreshToken);
+    const compareTokens = await comparePassword(refreshToken, user.refreshToken);
     if (!compareTokens) throw new UnauthorizedError('Token invalide');
 
     // on génère un newAccessToken et newRefreshToken
@@ -90,8 +117,9 @@ export const refreshService = async (userId: string, refreshToken: string) => {
 
     // on stock le nouveau refreshToken en base pour la rotation
     await storeRefreshToken(userId, newRefreshToken);
+    apiResponse.data = { accessToken: newAccessToken, refreshToken: newRefreshToken };
 
-    return { newAccessToken, newRefreshToken };
+    return apiResponse;
 };
 
 export const logoutService = async (userId: string) => {

@@ -11,18 +11,17 @@
         "resolveJsonModule": true,
         "sourceMap": true,
         "moduleResolution": "node",
-        "baseUrl": "./",
+        "baseUrl": "./src",
         "paths": {
-            // "*": ["src/*", "node_modules/*"],
             "@config/*": ["config/*"],
             "@middlewares/*": ["middlewares/*"],
             "@controllers/*": ["controllers/*"],
             "@routes/*": ["routes/*"],
-            "@models/*": ["models/*"],
             "@errors/*": ["errors/*"],
             "@schemas/*": ["schemas/*"],
             "@services/*": ["services/*"],
-            "@helpers/*": ["helpers/*"]
+            "@helpers/*": ["helpers/*"],
+            "@types/*": ["types/*"]
         }
     },
     "include": ["src/**/*"],
