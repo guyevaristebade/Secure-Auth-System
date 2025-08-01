@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { DecodedToken } from '../types';
+import { DecodedToken, UserPayload } from '../types';
 import { UnauthorizedError } from '../errors';
 import { ZodObject, ZodError } from 'zod';
 
@@ -14,15 +14,28 @@ export const authMiddlewares = {
 
         try {
             // on vérifie la validité du token
-            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as DecodedToken;
+            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as UserPayload;
 
             // s'il est valide on attache ses information à decoded
-            (req as any).userId = decoded.userId;
+            (req as any).user = decoded;
             next();
         } catch (error) {
             console.log("Echec de l'authentification ! ", error);
             next(error);
         }
+    },
+
+    checkRole(role: string) {
+        return async (req: Request, res: Response, next: NextFunction) => {
+            const userRole = (req as any).user.role;
+            try {
+                if (userRole !== role) throw new UnauthorizedError("Vous n'avez pas les droits");
+
+                next();
+            } catch (error) {
+                next(error);
+            }
+        };
     },
 
     // vérifie si le refreshToken du cookie est valide

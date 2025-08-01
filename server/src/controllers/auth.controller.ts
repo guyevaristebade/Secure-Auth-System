@@ -58,7 +58,7 @@ export const refreshController = async (req: Request, res: Response, next: NextF
 
 export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = (req as any).userId;
+        const userId = (req as any).user.id;
         await logoutService(userId);
         res.clearCookie('refresh_token');
 

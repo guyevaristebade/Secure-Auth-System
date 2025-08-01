@@ -73,8 +73,8 @@ export const loginService = async (data: loginInput) => {
     };
 
     // génération des tokens
-    const accessToken = generateAccessToken(existingUser.id);
-    const refreshToken = generateRefreshToken(existingUser.id);
+    const accessToken = generateAccessToken(userPayload);
+    const refreshToken = generateRefreshToken(userPayload);
 
     // mise à jour de la date de login
     await updateLoginAt(existingUser.id);
@@ -110,9 +110,15 @@ export const refreshService = async (userId: string, refreshToken: string) => {
     const compareTokens = await comparePassword(refreshToken, user.refreshToken);
     if (!compareTokens) throw new UnauthorizedError('Token invalide');
 
+    const userPayload: UserPayload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+    };
     // on génère un newAccessToken et newRefreshToken
-    const newAccessToken = generateAccessToken(userId);
-    const newRefreshToken = generateRefreshToken(userId);
+    const newAccessToken = generateAccessToken(userPayload);
+    const newRefreshToken = generateRefreshToken(userPayload);
 
     // on stock le nouveau refreshToken en base pour la rotation
     await storeRefreshToken(userId, newRefreshToken);

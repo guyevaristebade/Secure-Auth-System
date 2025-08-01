@@ -73,12 +73,13 @@ src/
 
 ## 5. Endpoints API
 
-| Méthode | Route            | Auth ? | Rôle requis | Description             |
-| ------- | ---------------- | ------ | ----------- | ----------------------- |
-| POST    | `/register`      | ❌     | -           | Inscription             |
-| POST    | `/login`         | ❌     | -           | Connexion               |
-| GET     | `/refresh-token` | ✅     | -           | Génère un nouveau token |
-| DELETE  | `/logout`        | ✅     | -           | Déconnexion             |
+| Méthode | Route                     | Auth ? | Rôle requis | Description             |
+| ------- | ------------------------- | ------ | ----------- | ----------------------- |
+| POST    | `/api/auth/register`      | ❌     | -           | Inscription             |
+| POST    | `/api/auth/login`         | ❌     | -           | Connexion               |
+| GET     | `/api/auth/refresh-token` | ✅     | -           | Génère un nouveau token |
+| DELETE  | `/api/auth/logout`        | ✅     | -           | Déconnexion             |
+| GET     | `/api/user/me`            |        | -           | user information        |
 
 ## 6. Middlewares
 
