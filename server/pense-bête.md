@@ -64,3 +64,16 @@ const refreshTokenValidation = (req: Request, res: Response, next: NextFunction)
     }
 };
 ```
+
+tests
+| Fonction | Test unitaire | Test d’intégration | E2E (avec requêtes API) |
+| ----------------- | ------------- | ------------------ | ----------------------- |
+| `hashPassword` | ✅ | – | – |
+| `registerService` | ✅ | ✅ | ✅ |
+| `loginService` | ✅ | ✅ | ✅ |
+| `refreshService` | ✅ | ✅ | ✅ |
+| `logoutService` | ✅ | ✅ | ✅ |
+
+## liens utile
+
+https://dev.to/claradev32/integration-testing-with-nodejs-370c

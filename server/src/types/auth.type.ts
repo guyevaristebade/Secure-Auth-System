@@ -20,3 +20,7 @@ export interface UserPayloadWithTokens {
     accessToken: string;
     refreshToken: string;
 }
+
+export interface AuthenticatedRequest extends Request {
+    userId: string;
+}

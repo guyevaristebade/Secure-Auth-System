@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { prisma } from '@config/index';
 import { ConflitError, UnauthorizedError } from '../errors';
 import { loginInput, RegisterInput } from '../schemas';
