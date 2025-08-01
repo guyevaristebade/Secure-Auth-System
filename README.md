@@ -20,14 +20,13 @@ Ce projet fournit une API d'authentification basé sur refresh token rotation av
 [![HTTPOnly Cookie](https://img.shields.io/badge/Cookie-HTTPOnly-ffca28)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
 [![JestT](https://img.shields.io/badge/Jest-000000?logo=Jest&logoColor=white)](https://jwt.io/)
 
-
 ### Fonctionnalités
 
 - Authentification (register/login/logout)
 
 - Rotation de refresh token
 
-<!-- - Gestion des rôles -->
+- Gestion des rôles
 
 - Middleware de validation Zod
 
@@ -91,4 +90,4 @@ src/
 
 - validation(schema): valide les données avec Zod
 
-- checkRole('ADMIN'): protège des routes par rôle 
+- checkRole('ADMIN'): protège des routes par rôle
