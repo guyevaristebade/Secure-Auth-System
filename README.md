@@ -18,6 +18,8 @@ Ce projet fournit une API d'authentification basé sur refresh token rotation av
 [![Zod](https://img.shields.io/badge/Zod-3A7AFE?logo=zod&logoColor=white)](https://zod.dev/)
 [![Bcrypt](https://img.shields.io/badge/Bcrypt-1A237E?logo=bcrypt&logoColor=white)](https://github.com/kelektiv/node.bcrypt.js)
 [![HTTPOnly Cookie](https://img.shields.io/badge/Cookie-HTTPOnly-ffca28)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
+[![JestT](https://img.shields.io/badge/Jest-000000?logo=Jest&logoColor=white)](https://jwt.io/)
+
 
 ### Fonctionnalités
 
