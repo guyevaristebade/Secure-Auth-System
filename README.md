@@ -91,4 +91,4 @@ src/
 
 - validation(schema): valide les données avec Zod
 
-- checkRole('admin'): protège des routes par rôle (à venir)
+- checkRole('ADMIN'): protège des routes par rôle 
