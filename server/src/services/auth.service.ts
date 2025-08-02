@@ -1,4 +1,4 @@
-import { prisma } from '@config/index';
+import { prisma } from '../config';
 import { ConflitError, UnauthorizedError } from '../errors';
 import { loginInput, RegisterInput } from '../schemas';
 import { ApiResponse, userWithoutRole, UserPayloadWithTokens, ITokens, UserPayload } from '../types';
@@ -47,7 +47,7 @@ export const registerService = async (data: RegisterInput) => {
 export const loginService = async (data: loginInput) => {
     const apiResponse: ApiResponse<UserPayloadWithTokens> = {
         ok: true,
-        status: 201,
+        status: 200,
         data: null,
     };
     const { email, password } = data;

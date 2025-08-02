@@ -59,14 +59,17 @@ export const authMiddlewares = {
     },
 
     //
-    validationError: (schema: ZodObject) => {
+    validationError: (schema: ZodObject, route: string) => {
         return (req: Request, res: Response, next: NextFunction) => {
             try {
                 schema.parse(req.body);
                 next();
             } catch (error) {
                 if (error instanceof ZodError) {
-                    const message = error.issues[0].message;
+                    let message = error.issues[0].message;
+
+                    if (route === '/register') message = error.issues[1].message;
+
                     res.status(400).json({
                         ok: false,
                         status: 400,
