@@ -1,4 +1,4 @@
-import { prisma } from '@config/db.config';
+import { prisma } from '../config';
 import { UnauthorizedError } from '../errors';
 import { ApiResponse, UserInfos } from '../types';
 

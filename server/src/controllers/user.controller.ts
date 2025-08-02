@@ -1,5 +1,4 @@
-import { getUserInfo } from '@services/user.service';
-import { AuthenticatedRequest } from '../types';
+import { getUserInfo } from '../services';
 import { Request, Response, NextFunction } from 'express';
 
 export const getUserInfosController = async (req: Request, res: Response, next: NextFunction) => {

@@ -5,9 +5,9 @@ import { loginController, logoutController, refreshController, registerControlle
 
 export const authRouter = Router();
 
-authRouter.post('/register', authMiddlewares.validationError(registerSchema), registerController);
+authRouter.post('/register', authMiddlewares.validationError(registerSchema, '/register'), registerController);
 
-authRouter.post('/login', authMiddlewares.validationError(loginSchema), loginController);
+authRouter.post('/login', authMiddlewares.validationError(loginSchema, '/login'), loginController);
 
 authRouter.get('/refresh-token', authMiddlewares.refreshTokenValidation, refreshController);
 
