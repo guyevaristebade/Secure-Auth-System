@@ -73,4 +73,26 @@ describe('auth route', () => {
             expect(response.body.data).toBeNull();
         });
     });
+
+    describe('/logout', () => {
+        it('un utilisateur tente demande un nouveau token', async () => {
+            const loginRes = await request(app)
+                .post('/api/auth/login')
+                .send({ email: 'test@example.com', password: 'user1234.' });
+
+            expect(loginRes.status).toBe(201);
+            expect(loginRes.ok).toBeTruthy();
+            expect(loginRes.body.data).toHaveProperty('refreshToken');
+
+            const accessToken = loginRes.body.data.accessToken;
+
+            const logoutRes = await request(app)
+                .delete('/api/auth/logout')
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(logoutRes.ok).toBeTruthy();
+            expect(logoutRes.body).toHaveProperty('message');
+            expect(logoutRes.body.message).toBe('Deconnexion réussi');
+        });
+    });
 });
