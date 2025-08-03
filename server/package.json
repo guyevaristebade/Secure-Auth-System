@@ -6,6 +6,8 @@
     "scripts": {
         "test": "jest",
         "test:integration": "jest tests/integration --runInBand --watch",
+        "test:e2e": "jest tests/e2e --runInBand --watch",
+        "test:unitaire": "jest tests/unitaire --runInBand --watch",
         "start": "node dist/server.ts",
         "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
         "format": "prettier --write \"**/*.ts\""
